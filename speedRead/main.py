@@ -42,7 +42,7 @@ def printToTerminal(inString:str, fileName:str):
         print(f'\r{progressString}{newWord.center(neededWhiteSpace, " " )}Speed:{speedVar:.2f}', end='')
         time.sleep(0.1 + speed)
 
-def splitUltilString(strIn) -> str:
+def splitUtilString(strIn) -> str:
     if(strIn == ''): 
         return
     if(isinstance(strIn, str)):
@@ -55,7 +55,7 @@ def splitUltilString(strIn) -> str:
         res = []
         for string in strIn:
             if string != '':
-                res.extend(splitUltilString(string))
+                res.extend(splitUtilString(string))
         return res
 
 def main():
@@ -75,7 +75,7 @@ def main():
     with open(myFile, 'r', encoding="utf-8") as inputFile:
         buffer = inputFile.read()
         
-        res = splitUltilString(buffer)
+        res = splitUtilString(buffer)
         printToTerminal(res, fin)
     
     # test1 = "this is a \ntest for a \tstring"
