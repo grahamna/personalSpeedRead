@@ -3,8 +3,10 @@
 
 # todo
   Hotkeys
-    pause | the k key? something else?
-    faster | arrow key up
-    slower | arrow key down
-    word by word navigation | arrow keys L/R
+    [x] pause | space
+    [x] faster | arrow key up
+    [x] slower | arrow key down
+    [] word by word navigation | arrow keys L/R
   Bookmarks / previous place
+
+  bookmarks and word by word nav will probably need for a custom class to be built
