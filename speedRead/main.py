@@ -114,28 +114,5 @@ def main():
     except KeyboardInterrupt:
         print("\nExiting via keyboardInterrupt")
     
-    # test1 = "this is a \ntest for a \tstring"
-    # test2 = ["testing","for","an","array","of","strings with some variance             ","\t\\t \c\r","123\n321"]
-    # test3 = {"this is a","map","""
-    #         this is testing for a multi line paragraph
-    #         within the paragraph may or may "not" be tabs and shit
-    #             hello. \t provably want to trim these     
-            
-    #         with multiz
-            
-    #         asdfasdfasdfasdfasdfasdfsadfsadfsadfasdfdsafasdf
-    #         """}
-    # arrayOfTests = [test1, test2, test3]
-    # for tests in arrayOfTests:
-    #     res = splitUltilString(tests)
-    #     length = len(res)
-    #     count = 0
-    #     for word in res:
-    #         count = count + 1
-    #         speed = (len(word)*0.01) * var
-    #         print(f'\r{count}/{length}\t> {word.center(10," ")} <',end='')
-    #         time.sleep(0.1 + speed)
-    #     print()
-        
 if __name__ == '__main__':
     main()
