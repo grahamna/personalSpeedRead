@@ -133,7 +133,7 @@ def searchForBookmarks(fileContents:list[str] | str) -> tuple[int, bool]:
         length = len(fileContents)
         if bookmarkCount <= length:
             print(f"Found BookMark Ref for index {bookmarkCount}/{len(fileContents)}")
-            answer = input("Resume from Bookmark?  (Y/n)\n  => ")
+            answer = input("Resume from Bookmark?  (Y/n)\n => ")
             if answer == '' or answer.startswith('y') or answer.startswith('Y'):
                 return bookmarkCount, hasBookMark
             else: 
