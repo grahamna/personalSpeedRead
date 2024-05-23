@@ -4,7 +4,7 @@
 
 ## Dependencies
 
-- keyboard
+- keyboard - ( pip install keyboard )
   - using this package requires sudo in Linux
 
 ### Hotkeys
@@ -17,7 +17,6 @@
   | arrow keys L/R | word by word navigation
   | esc | exit [while  paused] |
 
-## todo
-  
-  1. Bookmarks / previous place  
-    - bookmarks and word by word nav will probably need for a custom class to be built, maybe a special string to look for?
+## Bookmarks
+
+  > When exiting the program, via esc or ctrl c, the program will modify the end of your input file with the index of the bookmark. This allows you to not loose progress in larger files.
