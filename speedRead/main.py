@@ -2,7 +2,6 @@ import time, os, re
 
 import keyboard
 
-
 def wordNav(direction:int) -> None:
     global going, count
     if going: return
@@ -13,10 +12,6 @@ def wordNav(direction:int) -> None:
         elif direction == -1:
             count-=1
             terminalPrint(count)
-        else:
-            # bookmark function
-            os._exit(1)
-
 
 def speedMod(mod:int) -> None:
     global speedVar, going
@@ -30,7 +25,14 @@ def speedMod(mod:int) -> None:
             terminalPrint(count)
     else:
         going = not going
-        
+
+def quitProgram(fileName:str) -> None:
+    global going, count
+    if going: return
+    else:
+        insertBookmark(fileName)
+        os._exit(1)
+
 def printToTerminal(fileName:str) -> None:
     global count, speedVar, going, neededWhiteSpace, oldTerminalWidth, length, inString
 
@@ -43,13 +45,14 @@ def printToTerminal(fileName:str) -> None:
     neededWhiteSpace = oldTerminalWidth - len(speedText) - len(progressText)
     print(f'\r{progressText}{fileName.center(neededWhiteSpace -1 , " " )}{speedText}')
 
-    while count < length:
+    while count < length - 1:
+
+        word, count = terminalPrint(count)
+        count+=1
+
         if (not going):
             count-=1
             keyboard.wait('space')
-
-        count+=1
-        word, count = terminalPrint(count)
         
         wordSize = len(word)
         speed = (wordSize*0.0185) * speedVar
@@ -63,6 +66,8 @@ def printToTerminal(fileName:str) -> None:
 def terminalPrint(newCount:int) -> tuple[str, int]:
         global oldTerminalWidth, neededWhiteSpace, count, speedVar, inString
         count = newCount
+        if count < 0 : count = 0
+        if count >= length: count = length -1
 
         assert inString is not None
         word = inString[count]
@@ -101,7 +106,7 @@ def splitUtilString(strIn:str|list[str]) -> list[str] | str | None:
         return res
 
 def getFileToRead() -> tuple[ list[str] | str | None,  str]:
-
+    global count, hasBookMark
     fileName = input("Name of file in the folder /input \n => ")
     dirName = os.path.dirname(__file__)
     myFile:str = os.path.join(dirName, f'../input/{fileName}')
@@ -110,16 +115,74 @@ def getFileToRead() -> tuple[ list[str] | str | None,  str]:
         with open(myFile, 'r', encoding="utf-8") as inputFile:
             buffer = inputFile.read()
             fileContents = splitUtilString(buffer)
+            assert fileContents is not None
+            count, hasBookMark = searchForBookmarks(fileContents)
         return fileContents, fileName
     except FileNotFoundError: 
         print(f"Failed to find file {fileName} in dir /input")
         return getFileToRead()
 
+def searchForBookmarks(fileContents:list[str] | str) -> tuple[int, bool]:
+    mark:str = fileContents[-1]
+    if '<<_BookMark_>>' in mark:
+        hasBookMark = True
+        bookmarkParse = re.findall(r'\d+', mark)[-1]
+        assert bookmarkParse is not None
+        bookmarkCount = int(bookmarkParse)
+            
+        length = len(fileContents)
+        if bookmarkCount <= length:
+            print(f"Found BookMark Ref for index {bookmarkCount}/{len(fileContents)}")
+            answer = input("Resume from Bookmark?  (Y/n)\n  => ")
+            if answer == '' or answer.startswith('y') or answer.startswith('Y'):
+                return bookmarkCount, hasBookMark
+            else: 
+                print("Bookmark Ref not used")
+        else:
+            print("Bookmark ref not valid (larger than the total length of file)")
+    else:
+        print("Bookmark Ref not found")
+        hasBookMark = False
+    return 0, hasBookMark
+
+def insertBookmark(fileName:str):
+    global count, hasBookMark
+    dirName = os.path.dirname(__file__)
+    myFile:str = os.path.join(dirName, f'../input/{fileName}')
+    try:
+        with open(myFile, 'a+', encoding="utf-8") as inputFile:
+            if hasBookMark:
+                inputFile.seek(0,os.SEEK_END)
+                cur = inputFile.tell() -1
+                while inputFile.read(1) != '\n' and cur > 0:
+                    cur = cur - 1
+                    inputFile.seek(cur, os.SEEK_SET)
+                if cur > 0:
+                    inputFile.seek(cur, os.SEEK_SET)
+                    inputFile.truncate()
+                    inputFile.flush()
+                    inputFile.write(f"\n<<_BookMark_>>{count}")
+            else:
+                inputFile.write(f"<<_BookMark_>>{count}")
+            print(f"\nBookmark made at index {count+1}")
+    except:
+        print("Saving bookmark failed. Bookmark not created")
+
+def setKeybinds(fileName:str):
+        # setting up hotkeys, activate regardless of window focus
+    keyboard.add_hotkey("LEFT", lambda: wordNav(-1))
+    keyboard.add_hotkey("RIGHT", lambda: wordNav(1))
+    keyboard.add_hotkey("DOWN", lambda: speedMod(1))
+    keyboard.add_hotkey("UP", lambda: speedMod(0))
+    keyboard.add_hotkey("space", lambda: speedMod(-1))
+    keyboard.add_hotkey("esc", lambda: quitProgram(fileName))
+
+    hotkeyHeader = "Hotkeys Activated:\n\t| space to play / pause | UP / DOWN arrow(s) to modify reading speed |\n\t| [while paused] LEFT / RIGHT arrow to navigate words  | esc to quit |"
+    print(hotkeyHeader)
 
 def main() -> None:
     
-    global speedVar, going, count, inString
-    count = 0
+    global speedVar, going, count, inString, hasBookMark
     speedVar = 1
     going = False
     
@@ -128,21 +191,12 @@ def main() -> None:
 
     if (inString is not None):
         try:
-                # setting up hotkeys, activate regardless of window focus
-            keyboard.add_hotkey("LEFT", lambda: wordNav(-1))
-            keyboard.add_hotkey("RIGHT", lambda: wordNav(1))
-            keyboard.add_hotkey("DOWN", lambda: speedMod(1))
-            keyboard.add_hotkey("UP", lambda: speedMod(0))
-            keyboard.add_hotkey("space", lambda: speedMod(-1))
-            keyboard.add_hotkey("esc", lambda: wordNav(0))
-
-            hotkeyHeader = "Hotkeys Activated:\n\t| space to play / pause | UP / DOWN arrow(s) to modify reading speed |\n\t| [while paused] LEFT / RIGHT arrow to navigate words  | esc to quit |"
-            print(hotkeyHeader)
+            setKeybinds(fileName)
 
             printToTerminal(fileName)
         except KeyboardInterrupt:
             print("\nExiting via KeyboardInterrupt")
-            # bookmark function
+            insertBookmark(fileName)
             os._exit(1)
     else:
         print(f"File {fileName} is empty, exiting")
