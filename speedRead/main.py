@@ -1,4 +1,6 @@
-import time, os, re
+import time
+import os
+import re
 
 import keyboard
 
@@ -6,24 +8,16 @@ def wordNav(direction:int) -> None:
     global going, count
     if going: return
     else:
-        if direction ==  1:
-            count+=1
-            terminalPrint(count)
-        elif direction == -1:
-            count-=1
-            terminalPrint(count)
+        count += direction
+        terminalPrint(count)
 
-def speedMod(mod:int) -> None:
+def speedMod(mod:float) -> None:
     global speedVar, going
-    if mod == 0:
-        speedVar = speedVar + 0.05
+    if mod != 0:
+        speedVar += mod
         if (not going):
             terminalPrint(count)
-    elif mod == 1:
-        speedVar = speedVar - 0.05
-        if (not going):
-            terminalPrint(count)
-    else:
+    else :
         going = not going
 
 def quitProgram(fileName:str) -> None:
@@ -168,13 +162,13 @@ def insertBookmark(fileName:str):
     except:
         print("Saving bookmark failed. Bookmark not created")
 
-def setKeybinds(fileName:str):
+def setKeybinds(fileName:str) -> None:
         # setting up hotkeys, activate regardless of window focus
     keyboard.add_hotkey("LEFT", lambda: wordNav(-1))
     keyboard.add_hotkey("RIGHT", lambda: wordNav(1))
-    keyboard.add_hotkey("DOWN", lambda: speedMod(1))
-    keyboard.add_hotkey("UP", lambda: speedMod(0))
-    keyboard.add_hotkey("space", lambda: speedMod(-1))
+    keyboard.add_hotkey("DOWN", lambda: speedMod(-0.5))
+    keyboard.add_hotkey("UP", lambda: speedMod(0.5))
+    keyboard.add_hotkey("space", lambda: speedMod(0))
     keyboard.add_hotkey("esc", lambda: quitProgram(fileName))
 
     hotkeyHeader = "Hotkeys Activated:\n\t| space to play / pause | UP / DOWN arrow(s) to modify reading speed |\n\t| [while paused] LEFT / RIGHT arrow to navigate words  | esc to quit |"
